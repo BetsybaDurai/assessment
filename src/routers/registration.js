@@ -5,11 +5,14 @@ const config  = require('../middleware/config.js')
 connectDB();
 const bcrypt = require('bcryptjs')
 const jwt = require("jsonwebtoken");
-const auth= require('../middleware/auth')
+const auth = require('../middleware/auth')
+
+const validation = require('../middleware/validatemiddleware')
+const userSchema=require('../validation/validation')
 
 
 const router = new express.Router()
-router.post('/registration', async (req, res) => {
+router.post('/registration', validation(userSchema),async (req, res) => {
 
     const salt = await bcrypt.genSalt(8);
     req.body.Password = await bcrypt.hashSync(req.body.Password, salt)
@@ -19,9 +22,8 @@ router.post('/registration', async (req, res) => {
         await registration.save()
         const token = await registration.generateAuthToken()
         
-        res.status(200).send({registration,token})
+       res.status(200).send({registration,token})
     } catch (e) {
-        // console.log(e)
         res.status(400).send(e)
     }
    
